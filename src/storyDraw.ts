@@ -423,12 +423,19 @@ function drawCopy(
       fade.addColorStop(0, 'rgba(6, 3, 1, 0.88)')
       fade.addColorStop(0.55, 'rgba(6, 3, 1, 0.5)')
       fade.addColorStop(1, 'rgba(6, 3, 1, 0)')
+      const bottomTop = photoY + photoH - bandH
+      const fadeBottom = ctx.createLinearGradient(0, bottomTop, 0, photoY + photoH)
+      fadeBottom.addColorStop(0, 'rgba(6, 3, 1, 0)')
+      fadeBottom.addColorStop(0.45, 'rgba(6, 3, 1, 0.5)')
+      fadeBottom.addColorStop(1, 'rgba(6, 3, 1, 0.88)')
       ctx.save()
       ctx.beginPath()
       ctx.roundRect(photoX, photoY, photoW, photoH, photoRadius)
       ctx.clip()
       ctx.fillStyle = fade
       ctx.fillRect(photoX, photoY, photoW, bandH)
+      ctx.fillStyle = fadeBottom
+      ctx.fillRect(photoX, bottomTop, photoW, bandH)
       ctx.restore()
     }
 
