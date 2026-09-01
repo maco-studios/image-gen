@@ -1,4 +1,7 @@
+export type StoryKind = 'menu' | 'photo'
+
 export type MenuData = {
+    kind: StoryKind
     weekday: string
     dateLabel: string
     items: string
@@ -45,6 +48,7 @@ export function parseIsoDate(iso: string): Date {
 export function defaultMenu(): MenuData {
     const today = new Date()
     return {
+        kind: 'menu',
         weekday: weekdayFromDate(today),
         dateLabel: dateLabelFromDate(today),
         items: 'ARROZ/FEIJÃO\nBIFE ACEBOLADO\nBATATA FRITA\nMACARRÃO ALHO E ÓLEO\nSALADA',

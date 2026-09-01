@@ -6,6 +6,7 @@ import { drawStory, prepareStoryAssets, STORY_HEIGHT, STORY_WIDTH } from '../sto
 const props = defineProps<{
   menu: MenuData
   live?: boolean
+  hero?: CanvasImageSource | null
 }>()
 
 const canvas = ref<HTMLCanvasElement | null>(null)
@@ -19,7 +20,7 @@ function paint() {
   if (!el || !ready) return
   const ctx = el.getContext('2d')
   if (!ctx) return
-  drawStory(ctx, props.menu, props.live ? tx.value : 0, props.live ? ty.value : 0)
+  drawStory(ctx, props.menu, props.live ? tx.value : 0, props.live ? ty.value : 0, props.hero ?? null)
 }
 
 function setOffset(nextX: number, nextY: number) {
@@ -51,7 +52,7 @@ onMounted(async () => {
 })
 
 watch(
-  () => props.menu,
+  () => [props.menu, props.hero],
   () => paint(),
   { deep: true },
 )

@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import MenuForm from './components/MenuForm.vue'
 import StoryCanvas from './components/StoryCanvas.vue'
-import { fileStamp, loadMenu, saveMenu, type MenuData } from './menu'
+import { fileStamp, loadMenu, saveMenu, type MenuData, type StoryKind } from './menu'
+import { photoFromFile } from './photo'
 import { STORY_HEIGHT, STORY_WIDTH } from './storyDraw'
 
 const menu = ref<MenuData>(loadMenu())
 const preview = ref<{ exportPng: () => Promise<string> } | null>(null)
+const hero = ref<HTMLCanvasElement | null>(null)
 const exporting = ref(false)
 const error = ref('')
+
+const photoMode = computed(() => menu.value.kind === 'photo')
 
 watch(
   menu,
@@ -18,8 +22,31 @@ watch(
   { deep: true },
 )
 
+function setKind(kind: StoryKind) {
+  menu.value.kind = kind
+  error.value = ''
+}
+
+async function onPhoto(file: File) {
+  error.value = ''
+  try {
+    hero.value = await photoFromFile(file)
+  } catch (err) {
+    hero.value = null
+    error.value = err instanceof Error ? err.message : 'Não foi possível ler a foto.'
+  }
+}
+
+function clearPhoto() {
+  hero.value = null
+}
+
 async function downloadStory() {
   if (!preview.value || exporting.value) return
+  if (photoMode.value && !hero.value) {
+    error.value = 'Tire ou escolha uma foto do prato antes de baixar.'
+    return
+  }
   exporting.value = true
   error.value = ''
   try {
@@ -35,7 +62,7 @@ async function downloadStory() {
     }
     const link = document.createElement('a')
     link.href = dataUrl
-    link.download = `cardapio-${fileStamp(menu.value)}.png`
+    link.download = `${photoMode.value ? 'prato' : 'cardapio'}-${fileStamp(menu.value)}.png`
     link.click()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Não foi possível gerar a imagem.'
@@ -49,13 +76,43 @@ async function downloadStory() {
   <div class="page">
     <header class="mast">
       <p class="kicker">Família Chico Gastrobar</p>
-      <h1>Cardápio do dia</h1>
-      <p class="lede">Preencha o prato de hoje e baixe o anúncio pronto para o Stories.</p>
+      <h1>{{ photoMode ? 'Prato do dia' : 'Cardápio do dia' }}</h1>
+      <p class="lede">
+        {{
+          photoMode
+            ? 'Bata a foto do prato no celular. O Stories sai com a identidade do Chico e a foto no centro.'
+            : 'Preencha o prato de hoje e baixe o anúncio pronto para o Stories.'
+        }}
+      </p>
     </header>
 
     <div class="workspace">
       <section class="desk" aria-label="Dados do cardápio">
-        <MenuForm v-model="menu" />
+        <div class="modes" role="tablist" aria-label="Tipo de Stories">
+          <button
+            type="button"
+            role="tab"
+            class="modes__btn"
+            :aria-selected="menu.kind === 'menu'"
+            :class="{ 'modes__btn--on': menu.kind === 'menu' }"
+            @click="setKind('menu')"
+          >
+            <i class="fa-solid fa-list" aria-hidden="true"></i>
+            Cardápio
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="modes__btn"
+            :aria-selected="menu.kind === 'photo'"
+            :class="{ 'modes__btn--on': menu.kind === 'photo' }"
+            @click="setKind('photo')"
+          >
+            <i class="fa-solid fa-camera" aria-hidden="true"></i>
+            Foto do prato
+          </button>
+        </div>
+        <MenuForm v-model="menu" :has-photo="Boolean(hero)" @photo="onPhoto" @clear-photo="clearPhoto" />
         <button class="download" type="button" :disabled="exporting" @click="downloadStory">
           <i class="fa-solid fa-download" aria-hidden="true"></i>
           {{ exporting ? 'Gerando imagem…' : 'Baixar Stories' }}
@@ -67,7 +124,7 @@ async function downloadStory() {
       <section class="stage" aria-label="Prévia do anúncio">
         <div class="phone">
           <div class="phone__screen">
-            <StoryCanvas ref="preview" :menu="menu" live />
+            <StoryCanvas ref="preview" :menu="menu" :hero="hero" live />
           </div>
           <p class="parallax-hint">
             <i class="fa-solid fa-up-down-left-right" aria-hidden="true"></i>
@@ -129,6 +186,35 @@ async function downloadStory() {
   border: 1px solid #6a5132;
   padding: 1.25rem;
   box-shadow: 8px 12px 0 #120e0a;
+}
+
+.modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.modes__btn {
+  border: 1px solid #6a5132;
+  background: #1a140f;
+  color: #d7c2a0;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.7rem 0.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.modes__btn--on {
+  background: #f0b429;
+  border-color: #f0b429;
+  color: #1a1208;
 }
 
 .download {

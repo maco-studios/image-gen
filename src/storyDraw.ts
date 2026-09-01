@@ -1,5 +1,6 @@
 import type { MenuData } from './menu'
 import { menuLines } from './menu'
+import { drawCover } from './photo'
 
 export const STORY_WIDTH = 1080
 export const STORY_HEIGHT = 1920
@@ -54,6 +55,7 @@ export function drawStory(
     menu: MenuData,
     tx = 0,
     ty = 0,
+    hero: CanvasImageSource | null = null,
 ) {
     const w = STORY_WIDTH
     const h = STORY_HEIGHT
@@ -89,34 +91,36 @@ export function drawStory(
     const copy = shift(3)
     ctx.save()
     ctx.translate(copy.x, copy.y)
-    drawCopy(ctx, menu, w, h)
+    drawCopy(ctx, menu, w, h, hero)
     ctx.restore()
 
-    const foodLayer = document.createElement('canvas')
-    foodLayer.width = w
-    foodLayer.height = h
-    const foodCtx = foodLayer.getContext('2d')
-    if (foodCtx) {
-        const food = shift(22)
-        foodCtx.drawImage(img('food'), -w * 0.12 + food.x, -h * 0.12 + food.y, w * 1.24, h * 1.24)
-        foodCtx.globalCompositeOperation = 'destination-in'
-        const keepEdges = foodCtx.createRadialGradient(
-            w * 0.5,
-            h * 0.46,
-            w * 0.16,
-            w * 0.5,
-            h * 0.46,
-            w * 0.48,
-        )
-        keepEdges.addColorStop(0, 'rgba(0,0,0,0)')
-        keepEdges.addColorStop(0.42, 'rgba(0,0,0,0)')
-        keepEdges.addColorStop(1, '#000')
-        foodCtx.fillStyle = keepEdges
-        foodCtx.fillRect(0, 0, w, h)
-        ctx.save()
-        ctx.globalCompositeOperation = 'lighten'
-        ctx.drawImage(foodLayer, 0, 0)
-        ctx.restore()
+    if (menu.kind !== 'photo') {
+        const foodLayer = document.createElement('canvas')
+        foodLayer.width = w
+        foodLayer.height = h
+        const foodCtx = foodLayer.getContext('2d')
+        if (foodCtx) {
+            const food = shift(22)
+            foodCtx.drawImage(img('food'), -w * 0.12 + food.x, -h * 0.12 + food.y, w * 1.24, h * 1.24)
+            foodCtx.globalCompositeOperation = 'destination-in'
+            const keepEdges = foodCtx.createRadialGradient(
+                w * 0.5,
+                h * 0.46,
+                w * 0.16,
+                w * 0.5,
+                h * 0.46,
+                w * 0.48,
+            )
+            keepEdges.addColorStop(0, 'rgba(0,0,0,0)')
+            keepEdges.addColorStop(0.42, 'rgba(0,0,0,0)')
+            keepEdges.addColorStop(1, '#000')
+            foodCtx.fillStyle = keepEdges
+            foodCtx.fillRect(0, 0, w, h)
+            ctx.save()
+            ctx.globalCompositeOperation = 'lighten'
+            ctx.drawImage(foodLayer, 0, 0)
+            ctx.restore()
+        }
     }
 
     ctx.save()
@@ -160,6 +164,7 @@ export function drawStory(
 const FA = {
     calendar: '\uf133',
     utensils: '\uf2e7',
+    camera: '\uf030',
     star: '\uf005',
     phone: '\uf095',
     whatsapp: '\uf232',
@@ -251,6 +256,7 @@ function footerHeight(
   w: number,
   h: number,
   scale: number,
+  withOption = true,
 ) {
   const kickerSize = w * 0.026 * scale
   const optionSize = w * 0.044 * scale
@@ -264,11 +270,15 @@ function footerHeight(
   const phoneGap = h * 0.012 * scale
   const beforeAddress = h * 0.024 * scale
 
-  ctx.font = font(400, kickerSize, 'Ubuntu')
-  const kicker = textBox(ctx, 'Opção do dia', kickerSize)
-  ctx.font = font(800, optionSize, 'Montserrat')
-  const option = textBox(ctx, menu.option.toUpperCase(), optionSize)
-  const boxH = boxPad * 2 + kicker.ascent + kicker.descent + innerGap + option.ascent + option.descent
+  let optionBlock = 0
+  if (withOption) {
+    ctx.font = font(400, kickerSize, 'Ubuntu')
+    const kicker = textBox(ctx, 'Opção do dia', kickerSize)
+    ctx.font = font(800, optionSize, 'Montserrat')
+    const option = textBox(ctx, menu.option.toUpperCase(), optionSize)
+    optionBlock =
+      boxPad * 2 + kicker.ascent + kicker.descent + innerGap + option.ascent + option.descent + afterBox
+  }
 
   ctx.font = font(900, ctaSize, 'Montserrat')
   const cta = textBox(ctx, menu.cta.toUpperCase(), ctaSize)
@@ -279,8 +289,7 @@ function footerHeight(
   const address = textBox(ctx, menu.address, addressSize)
 
   return (
-    boxH +
-    afterBox +
+    optionBlock +
     cta.ascent +
     cta.descent +
     afterCta +
@@ -295,7 +304,13 @@ function footerHeight(
   )
 }
 
-function drawCopy(ctx: CanvasRenderingContext2D, menu: MenuData, w: number, h: number) {
+function drawCopy(
+    ctx: CanvasRenderingContext2D,
+    menu: MenuData,
+    w: number,
+    h: number,
+    hero: CanvasImageSource | null,
+) {
     const logoTop = h * 0.028
     const logoSize = w * 0.2
     const cx = w / 2
@@ -307,7 +322,36 @@ function drawCopy(ctx: CanvasRenderingContext2D, menu: MenuData, w: number, h: n
     ctx.shadowBlur = 0
     ctx.shadowOffsetY = 0
 
-    const title = 'CARDÁPIO DO DIA'
+    const photoMode = menu.kind === 'photo'
+
+    if (photoMode) {
+      const photoW = w * 0.8
+      const photoH = h * 0.8
+      const photoX = (w - photoW) / 2
+      const photoY = (h - photoH) / 2
+      const radius = w * 0.028
+      ctx.fillStyle = '#120c08'
+      ctx.beginPath()
+      ctx.roundRect(photoX, photoY, photoW, photoH, radius)
+      ctx.fill()
+      if (hero) {
+        drawCover(ctx, hero, photoX, photoY, photoW, photoH, radius)
+      } else {
+        ctx.fillStyle = '#ffc43a'
+        ctx.font = faFont(w * 0.08)
+        ctx.fillText(FA.camera, cx, photoY + photoH * 0.5)
+        ctx.font = font(500, w * 0.032, 'Ubuntu')
+        ctx.fillStyle = '#f0d7a4'
+        ctx.fillText('TIRE UMA FOTO DO PRATO', cx, photoY + photoH * 0.58)
+      }
+      ctx.strokeStyle = '#ffc43a'
+      ctx.lineWidth = Math.max(2, h * 0.003)
+      ctx.beginPath()
+      ctx.roundRect(photoX, photoY, photoW, photoH, radius)
+      ctx.stroke()
+    }
+
+    const title = photoMode ? 'PRATO DO DIA' : 'CARDÁPIO DO DIA'
     const stampSize = fitTitleSize(ctx, title, w * 0.86, w * 0.09)
     ctx.fillStyle = '#ffc43a'
     ctx.font = font(900, stampSize, 'Montserrat')
@@ -347,6 +391,11 @@ function drawCopy(ctx: CanvasRenderingContext2D, menu: MenuData, w: number, h: n
     let footerScale = 1
     const afterList = () => h * 0.028 * footerScale
 
+    if (photoMode) {
+      const naturalFooter = footerHeight(ctx, menu, w, h, 1, false)
+      footerScale = Math.max(0.72, Math.min(1, (h * 0.18) / naturalFooter))
+      y = h - bottomSafe - footerHeight(ctx, menu, w, h, footerScale, false)
+    } else {
     const listFits = () =>
       dishBlockHeight(ctx, lines, dishSize, dishGap, padY) <=
       h - bottomSafe - footerHeight(ctx, menu, w, h, footerScale) - listStart - afterList()
@@ -395,30 +444,34 @@ function drawCopy(ctx: CanvasRenderingContext2D, menu: MenuData, w: number, h: n
       y += item.descent
     })
     y = blockTop + blockH + afterList()
+    }
 
     const s = footerScale
-    const kickerSize = w * 0.026 * s
-    const optionSize = w * 0.044 * s
-    ctx.font = font(400, kickerSize, 'Ubuntu')
-    const kicker = textBox(ctx, 'Opção do dia', kickerSize)
-    ctx.font = font(800, optionSize, 'Montserrat')
-    const option = textBox(ctx, menu.option.toUpperCase(), optionSize)
-    const boxPad = h * 0.02 * s
-    const innerGap = h * 0.012 * s
-    const boxH = boxPad * 2 + kicker.ascent + kicker.descent + innerGap + option.ascent + option.descent
-    const boxW = w * 0.78
-    ctx.strokeStyle = '#ffc43a'
-    ctx.lineWidth = Math.max(1, h * 0.0022 * s)
-    ctx.strokeRect(cx - boxW / 2, y, boxW, boxH)
 
-    let inner = y + boxPad
-    inner += kicker.ascent
-    drawIconText(ctx, cx, inner, FA.star, 'Opção do dia', kickerSize, 'Ubuntu', 400, '#ffcf6a')
-    inner += kicker.descent + innerGap + option.ascent
-    ctx.fillStyle = '#fff7ea'
-    ctx.font = font(800, optionSize, 'Montserrat')
-    ctx.fillText(menu.option.toUpperCase(), cx, inner)
-    y += boxH + h * 0.028 * s
+    if (!photoMode) {
+      const kickerSize = w * 0.026 * s
+      const optionSize = w * 0.044 * s
+      ctx.font = font(400, kickerSize, 'Ubuntu')
+      const kicker = textBox(ctx, 'Opção do dia', kickerSize)
+      ctx.font = font(800, optionSize, 'Montserrat')
+      const option = textBox(ctx, menu.option.toUpperCase(), optionSize)
+      const boxPad = h * 0.02 * s
+      const innerGap = h * 0.012 * s
+      const boxH = boxPad * 2 + kicker.ascent + kicker.descent + innerGap + option.ascent + option.descent
+      const boxW = w * 0.78
+      ctx.strokeStyle = '#ffc43a'
+      ctx.lineWidth = Math.max(1, h * 0.0022 * s)
+      ctx.strokeRect(cx - boxW / 2, y, boxW, boxH)
+
+      let inner = y + boxPad
+      inner += kicker.ascent
+      drawIconText(ctx, cx, inner, FA.star, 'Opção do dia', kickerSize, 'Ubuntu', 400, '#ffcf6a')
+      inner += kicker.descent + innerGap + option.ascent
+      ctx.fillStyle = '#fff7ea'
+      ctx.font = font(800, optionSize, 'Montserrat')
+      ctx.fillText(menu.option.toUpperCase(), cx, inner)
+      y += boxH + h * 0.028 * s
+    }
 
     const ctaSize = w * 0.062 * s
     ctx.fillStyle = '#ffc43a'
