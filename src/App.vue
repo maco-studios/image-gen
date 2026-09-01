@@ -16,7 +16,14 @@ const pickerOpen = ref(false)
 const cameraInput = ref<HTMLInputElement | null>(null)
 const galleryInput = ref<HTMLInputElement | null>(null)
 
+const KIND_META: Record<StoryKind, { label: string; icon: string; title: string }> = {
+  menu: { label: 'Cardápio', icon: 'fa-solid fa-list', title: 'Cardápio do dia' },
+  photo: { label: 'Foto', icon: 'fa-solid fa-camera', title: 'Prato do dia' },
+  announce: { label: 'Aviso', icon: 'fa-solid fa-triangle-exclamation', title: 'Aviso' },
+}
+
 const photoMode = computed(() => menu.value.kind === 'photo')
+const kindMeta = computed(() => KIND_META[menu.value.kind])
 
 watch(
   menu,
@@ -102,7 +109,7 @@ async function downloadStory() {
     }
     const link = document.createElement('a')
     link.href = dataUrl
-    link.download = `${photoMode.value ? 'prato' : 'cardapio'}-${fileStamp(menu.value)}.png`
+    link.download = `${menu.value.kind === 'photo' ? 'prato' : menu.value.kind === 'announce' ? 'aviso' : 'cardapio'}-${fileStamp(menu.value)}.png`
     link.click()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Não foi possível gerar a imagem.'
@@ -136,18 +143,21 @@ async function downloadStory() {
         <i class="fa-solid fa-sliders" aria-hidden="true"></i>
         <span>Menu</span>
       </button>
+      <button
+        v-for="(meta, kind) in KIND_META"
+        :key="kind"
+        class="dock__btn"
+        :class="{ 'dock__btn--on': menu.kind === kind }"
+        type="button"
+        :aria-pressed="menu.kind === kind"
+        @click="setKind(kind)"
+      >
+        <i :class="meta.icon" aria-hidden="true"></i>
+        <span>{{ meta.label }}</span>
+      </button>
       <button class="dock__btn dock__btn--gold" type="button" :disabled="exporting" @click="downloadStory">
         <i class="fa-solid fa-download" aria-hidden="true"></i>
         <span>{{ exporting ? 'Gerando…' : 'Baixar' }}</span>
-      </button>
-      <button
-        class="dock__btn"
-        type="button"
-        :aria-pressed="photoMode"
-        @click="setKind(photoMode ? 'menu' : 'photo')"
-      >
-        <i :class="photoMode ? 'fa-solid fa-list' : 'fa-solid fa-camera'" aria-hidden="true"></i>
-        <span>{{ photoMode ? 'Cardápio' : 'Foto' }}</span>
       </button>
     </nav>
 
@@ -181,7 +191,7 @@ async function downloadStory() {
         <header class="drawer__head">
           <div>
             <p class="drawer__kicker">Família Chico Gastrobar</p>
-            <h2>{{ photoMode ? 'Prato do dia' : 'Cardápio do dia' }}</h2>
+            <h2>{{ kindMeta.title }}</h2>
           </div>
           <button class="drawer__close" type="button" aria-label="Fechar menu" @click="menuOpen = false">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -196,6 +206,7 @@ async function downloadStory() {
             :class="{ 'modes__btn--on': menu.kind === 'menu' }"
             @click="setKind('menu')"
           >
+            <i class="fa-solid fa-list" aria-hidden="true"></i>
             Cardápio
           </button>
           <button
@@ -206,7 +217,19 @@ async function downloadStory() {
             :class="{ 'modes__btn--on': menu.kind === 'photo' }"
             @click="setKind('photo')"
           >
+            <i class="fa-solid fa-camera" aria-hidden="true"></i>
             Foto
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="modes__btn"
+            :aria-selected="menu.kind === 'announce'"
+            :class="{ 'modes__btn--on': menu.kind === 'announce' }"
+            @click="setKind('announce')"
+          >
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            Aviso
           </button>
         </div>
         <MenuForm v-model="menu" />
@@ -301,8 +324,9 @@ async function downloadStory() {
   transform: translateX(-50%);
   z-index: 20;
   display: flex;
-  gap: 0.35rem;
-  padding: 0.45rem;
+  gap: 0.15rem;
+  padding: 0.35rem;
+  max-width: calc(100vw - 1rem);
   background: rgba(18, 12, 8, 0.94);
   border: 1px solid #6a5132;
   border-radius: 999px;
@@ -313,20 +337,26 @@ async function downloadStory() {
   border: 0;
   background: transparent;
   color: #f6ead6;
-  min-width: 4.6rem;
-  padding: 0.55rem 0.7rem;
+  min-width: 3.5rem;
+  padding: 0.5rem 0.4rem;
   cursor: pointer;
   display: grid;
   justify-items: center;
   gap: 0.2rem;
-  font-size: 0.68rem;
+  font-size: 0.58rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  border-radius: 999px;
 }
 
 .dock__btn i {
   font-size: 1.1rem;
+}
+
+.dock__btn--on {
+  color: #1a1208;
+  background: #f0b429;
 }
 
 .dock__btn--gold {
@@ -465,21 +495,32 @@ async function downloadStory() {
 }
 
 .modes {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   margin: 0 0 1.25rem;
 }
 
 .modes__btn {
+  flex: 1 1 5.5rem;
+  min-width: 0;
   border: 1px solid #6a5132;
   background: #1a140f;
   color: #d7c2a0;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.7rem 0.5rem;
+  font-size: 0.72rem;
+  padding: 0.7rem 0.4rem;
   cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.modes__btn i {
+  font-size: 1rem;
 }
 
 .modes__btn--on {

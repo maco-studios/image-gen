@@ -51,7 +51,18 @@ const isoDate = computed({
       <input v-model="menu.option" type="text" />
     </label>
 
-    <label class="field">
+    <label v-if="menu.kind === 'announce'" class="field">
+      <span><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Título</span>
+      <input v-model="menu.headline" type="text" placeholder="AVISO" />
+    </label>
+
+    <label v-if="menu.kind === 'announce'" class="field">
+      <span><i class="fa-solid fa-align-left" aria-hidden="true"></i> Mensagem</span>
+      <textarea v-model="menu.message" rows="6" spellcheck="true" />
+      <small>Texto livre. Use para avisos, horários ou recados.</small>
+    </label>
+
+    <label v-if="menu.kind !== 'announce'" class="field">
       <span><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Chamada</span>
       <input v-model="menu.cta" type="text" />
     </label>

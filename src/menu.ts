@@ -1,4 +1,4 @@
-export type StoryKind = 'menu' | 'photo'
+export type StoryKind = 'menu' | 'photo' | 'announce'
 
 export type MenuData = {
     kind: StoryKind
@@ -6,6 +6,8 @@ export type MenuData = {
     dateLabel: string
     items: string
     option: string
+    headline: string
+    message: string
     cta: string
     phone1: string
     phone2: string
@@ -53,6 +55,8 @@ export function defaultMenu(): MenuData {
         dateLabel: dateLabelFromDate(today),
         items: 'ARROZ/FEIJÃO\nBIFE ACEBOLADO\nBATATA FRITA\nMACARRÃO ALHO E ÓLEO\nSALADA',
         option: 'FILÉ DE FRANGO',
+        headline: 'AVISO',
+        message: 'HOJE NÃO HAVERÁ ENTREGA.\nFUNCIONAMOS SOMENTE NO SALÃO.',
         cta: 'FAÇA SEU PEDIDO',
         phone1: '(43) 3067-2443',
         phone2: '(43) 9.9197-8063',
