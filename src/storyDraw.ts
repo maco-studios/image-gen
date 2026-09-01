@@ -4,12 +4,14 @@ import { menuLines } from './menu'
 export const STORY_WIDTH = 1080
 export const STORY_HEIGHT = 1920
 
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`
+
 const ASSETS = {
-    bg: '/layers/layer-bg.png',
-    food: '/layers/layer-food.png',
-    fire: '/layers/layer-fire.png',
-    ride: '/layers/layer-delivery.png',
-    logo: '/layers/logo-clear.png',
+    bg: assetUrl('layers/layer-bg.png'),
+    food: assetUrl('layers/layer-food.png'),
+    fire: assetUrl('layers/layer-fire.png'),
+    ride: assetUrl('layers/layer-delivery.png'),
+    logo: assetUrl('layers/logo-clear.png'),
 } as const
 
 type AssetName = keyof typeof ASSETS
