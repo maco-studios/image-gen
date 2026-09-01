@@ -1,0 +1,23 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "createdAt": "2026-09-01T17:14:50.682Z",
+        "reason": "User confirmed Montserrat is intentional"
+      },
+      {
+        "rule": "overused-font",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-01T17:15:15.895Z",
+        "reason": "User requested Montserrat for the Stories type"
+      }
+    ]
+  }
+}
