@@ -140,8 +140,8 @@ async function downloadStory() {
 
     <nav class="dock" aria-label="Ações">
       <button class="dock__btn" type="button" :aria-expanded="menuOpen" @click="menuOpen = true">
-        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-        <span>Menu</span>
+        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        <span>Editar</span>
       </button>
       <button
         v-for="(meta, kind) in KIND_META"
@@ -190,48 +190,13 @@ async function downloadStory() {
       <aside class="drawer" aria-label="Dados do cardápio" @click.stop>
         <header class="drawer__head">
           <div>
-            <p class="drawer__kicker">Família Chico Gastrobar</p>
+            <p class="drawer__kicker">Editar · {{ kindMeta.label }}</p>
             <h2>{{ kindMeta.title }}</h2>
           </div>
-          <button class="drawer__close" type="button" aria-label="Fechar menu" @click="menuOpen = false">
+          <button class="drawer__close" type="button" aria-label="Fechar" @click="menuOpen = false">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </button>
         </header>
-        <div class="modes" role="tablist" aria-label="Tipo de Stories">
-          <button
-            type="button"
-            role="tab"
-            class="modes__btn"
-            :aria-selected="menu.kind === 'menu'"
-            :class="{ 'modes__btn--on': menu.kind === 'menu' }"
-            @click="setKind('menu')"
-          >
-            <i class="fa-solid fa-list" aria-hidden="true"></i>
-            Cardápio
-          </button>
-          <button
-            type="button"
-            role="tab"
-            class="modes__btn"
-            :aria-selected="menu.kind === 'photo'"
-            :class="{ 'modes__btn--on': menu.kind === 'photo' }"
-            @click="setKind('photo')"
-          >
-            <i class="fa-solid fa-camera" aria-hidden="true"></i>
-            Foto
-          </button>
-          <button
-            type="button"
-            role="tab"
-            class="modes__btn"
-            :aria-selected="menu.kind === 'announce'"
-            :class="{ 'modes__btn--on': menu.kind === 'announce' }"
-            @click="setKind('announce')"
-          >
-            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            Aviso
-          </button>
-        </div>
         <MenuForm v-model="menu" />
       </aside>
     </div>
@@ -263,7 +228,7 @@ async function downloadStory() {
 .frame {
   position: relative;
   background: #050505;
-  border-radius: 28px;
+  border-radius: 4px;
   padding: 10px;
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.45),
@@ -275,15 +240,15 @@ async function downloadStory() {
   height: auto;
   aspect-ratio: 9 / 16;
   display: block;
-  border-radius: 18px;
-  background: #14110e;
+  border-radius: 2px;
+  background: #1e1e1e;
 }
 
 .shutter {
   position: absolute;
   inset: 10px;
   border: 0;
-  border-radius: 18px;
+  border-radius: 2px;
   background: transparent;
   cursor: pointer;
   display: grid;
@@ -291,7 +256,7 @@ async function downloadStory() {
 }
 
 .shutter:focus-visible {
-  outline: 2px solid #f0b429;
+  outline: 2px solid #2d8ceb;
   outline-offset: 3px;
 }
 
@@ -301,14 +266,14 @@ async function downloadStory() {
   flex-direction: column;
   align-items: center;
   gap: 0.55rem;
-  background: rgba(10, 7, 4, 0.88);
-  color: #ffc43a;
+  background: rgba(30, 30, 30, 0.92);
+  color: #2d8ceb;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.82rem;
   padding: 1.1rem 1.25rem;
-  border: 1px solid #f0b429;
+  border: 1px solid #2d8ceb;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
   min-width: 11rem;
 }
@@ -327,42 +292,42 @@ async function downloadStory() {
   gap: 0.15rem;
   padding: 0.35rem;
   max-width: calc(100vw - 1rem);
-  background: rgba(18, 12, 8, 0.94);
-  border: 1px solid #6a5132;
-  border-radius: 999px;
+  background: rgba(50, 50, 50, 0.96);
+  border: 1px solid #4a4a4a;
+  border-radius: 2px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
 .dock__btn {
   border: 0;
   background: transparent;
-  color: #f6ead6;
-  min-width: 3.5rem;
-  padding: 0.5rem 0.4rem;
+  color: #e6e6e6;
+  min-width: 4.5rem;
+  padding: 0.65rem 0.6rem;
   cursor: pointer;
   display: grid;
   justify-items: center;
   gap: 0.2rem;
-  font-size: 0.58rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  border-radius: 999px;
+  border-radius: 2px;
 }
 
 .dock__btn i {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
 }
 
 .dock__btn--on {
-  color: #1a1208;
-  background: #f0b429;
+  color: #fff;
+  background: #2d8ceb;
 }
 
 .dock__btn--gold {
-  background: #f0b429;
-  color: #1a1208;
-  border-radius: 999px;
+  background: #2d8ceb;
+  color: #fff;
+  border-radius: 2px;
 }
 
 .dock__btn:disabled {
@@ -383,7 +348,7 @@ async function downloadStory() {
   z-index: 21;
   margin: 0;
   max-width: min(92vw, 28rem);
-  background: #3a1c14;
+  background: #3a2626;
   color: #ffb4a2;
   padding: 0.7rem 1rem;
   border: 1px solid #ffb4a2;
@@ -393,7 +358,7 @@ async function downloadStory() {
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: rgba(6, 3, 1, 0.62);
+  background: rgba(0, 0, 0, 0.6);
   display: grid;
   align-items: end;
   justify-items: center;
@@ -401,26 +366,26 @@ async function downloadStory() {
 
 .sheet,
 .drawer {
-  width: min(100%, 420px);
-  background: #2a2118;
-  border: 1px solid #6a5132;
-  padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+  width: min(100%, 480px);
+  background: #323232;
+  border: 1px solid #4a4a4a;
+  padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
   box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.4);
 }
 
 .sheet__kicker,
 .drawer__kicker {
   margin: 0;
-  color: #f0b429;
+  color: #2d8ceb;
   font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .sheet__title,
 .drawer__head h2 {
-  margin: 0.35rem 0 1rem;
+  margin: 0.35rem 0 0;
   font-size: 1.35rem;
   letter-spacing: -0.03em;
 }
@@ -431,8 +396,8 @@ async function downloadStory() {
   align-items: center;
   gap: 0.9rem;
   text-align: left;
-  border: 1px solid #6a5132;
-  background: #1a140f;
+  border: 1px solid #4a4a4a;
+  background: #1e1e1e;
   color: inherit;
   padding: 0.9rem 1rem;
   margin-bottom: 0.6rem;
@@ -444,8 +409,8 @@ async function downloadStory() {
   height: 2.2rem;
   display: grid;
   place-items: center;
-  background: #f0b429;
-  color: #1a1208;
+  background: #2d8ceb;
+  color: #fff;
   font-size: 1rem;
 }
 
@@ -458,7 +423,7 @@ async function downloadStory() {
 
 .choice small {
   display: block;
-  color: #cbb89a;
+  color: #a8a8a8;
   font-size: 0.82rem;
 }
 
@@ -468,17 +433,20 @@ async function downloadStory() {
   margin-top: 0.35rem;
   border: 0;
   background: none;
-  color: #d7c2a0;
+  color: #a8a8a8;
   cursor: pointer;
   padding: 0.55rem;
 }
 
 .drawer {
-  max-height: min(88svh, 820px);
+  max-height: 92svh;
   overflow: auto;
 }
 
 .drawer__head {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #4a4a4a;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -486,47 +454,12 @@ async function downloadStory() {
 }
 
 .drawer__close {
-  border: 1px solid #6a5132;
-  background: #1a140f;
-  color: #f6ead6;
+  border: 1px solid #4a4a4a;
+  background: #1e1e1e;
+  color: #e6e6e6;
   width: 2.4rem;
   height: 2.4rem;
   cursor: pointer;
-}
-
-.modes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0 0 1.25rem;
-}
-
-.modes__btn {
-  flex: 1 1 5.5rem;
-  min-width: 0;
-  border: 1px solid #6a5132;
-  background: #1a140f;
-  color: #d7c2a0;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  padding: 0.7rem 0.4rem;
-  cursor: pointer;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.modes__btn i {
-  font-size: 1rem;
-}
-
-.modes__btn--on {
-  background: #f0b429;
-  border-color: #f0b429;
-  color: #1a1208;
 }
 
 .sr {
@@ -542,9 +475,20 @@ async function downloadStory() {
     align-items: center;
   }
 
-  .sheet,
+  .veil:has(.drawer) {
+    justify-items: end;
+    align-items: stretch;
+  }
+
   .drawer {
-    box-shadow: 8px 12px 0 #120e0a;
+    width: 440px;
+    max-height: none;
+    height: 100svh;
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .sheet {
+    box-shadow: 8px 12px 0 #000;
   }
 }
 </style>

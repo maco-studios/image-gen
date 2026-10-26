@@ -1,9 +1,9 @@
 :root {
   color-scheme: dark;
-  --bg: #17110c;
-  --ink: #f6ead6;
-  --sans: 'Archivo', 'Segoe UI', sans-serif;
-  font: 16px/1.45 var(--sans);
+  --bg: #262626;
+  --ink: #e6e6e6;
+  --sans: 'Source Sans 3', 'Adobe Clean', 'Segoe UI', sans-serif;
+  font: 14px/1.4 var(--sans);
   background: var(--bg);
   color: var(--ink);
   font-synthesis: none;
@@ -16,17 +16,7 @@
 }
 
 html,
-body {
-  margin: 0;
-  min-height: 100%;
-}
 
-body {
-  background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(240, 180, 41, 0.16), transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, rgba(180, 60, 20, 0.18), transparent 50%),
-    var(--bg);
-}
 
 #app {
   min-height: 100svh;
