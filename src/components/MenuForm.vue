@@ -8,6 +8,7 @@ import {
   weekdayFromDate,
   type MenuData,
 } from '../menu'
+import { THEMES } from '../storyDraw'
 
 const menu = defineModel<MenuData>({ required: true })
 
@@ -28,8 +29,21 @@ const isoDate = computed({
 
 <template>
   <form class="form" @submit.prevent>
+    <section class="group">
+      <h3>Tema</h3>
+      <label class="field">
+        <span><i class="fa-solid fa-palette" aria-hidden="true"></i> Visual</span>
+        <select v-model="menu.theme">
+          <option v-for="(t, id) in THEMES" :key="id" :value="id">{{ t.label }}</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="group">
+      <h3>Data</h3>
+      <div class="pair">
     <label class="field">
-      <span><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Dia do cardápio</span>
+      <span><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Data</span>
       <input v-model="isoDate" type="date" />
     </label>
 
@@ -39,6 +53,11 @@ const isoDate = computed({
         <option v-for="day in WEEKDAYS" :key="day" :value="day">{{ day }}</option>
       </select>
     </label>
+      </div>
+    </section>
+
+    <section class="group">
+      <h3>Conteúdo</h3>
 
     <label v-if="menu.kind === 'menu'" class="field">
       <span><i class="fa-solid fa-utensils" aria-hidden="true"></i> Pratos do dia</span>
@@ -67,7 +86,11 @@ const isoDate = computed({
       <input v-model="menu.cta" type="text" />
     </label>
 
-    <div class="pair">
+    </section>
+
+    <section class="group">
+      <h3>Contato</h3>
+      <div class="pair">
       <label class="field">
         <span><i class="fa-solid fa-phone" aria-hidden="true"></i> Telefone</span>
         <input v-model="menu.phone1" type="text" inputmode="tel" />
@@ -76,41 +99,57 @@ const isoDate = computed({
         <span><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp</span>
         <input v-model="menu.phone2" type="text" inputmode="tel" />
       </label>
-    </div>
+      </div>
 
     <label class="field">
       <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Endereço</span>
       <input v-model="menu.address" type="text" />
     </label>
+    </section>
   </form>
 </template>
 
 <style scoped>
 .form {
   display: grid;
-  gap: 1.15rem;
+  gap: 1.75rem;
+}
+
+.group {
+  display: grid;
+  gap: 1.1rem;
+  align-content: start;
+}
+
+.group h3 {
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #4a4a4a;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a8a8a8;
 }
 
 .pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
+  gap: 1rem;
 }
 
 .field {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .field span {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #e7c27a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #b8b8b8;
 }
 
 .field span i {
@@ -119,8 +158,8 @@ const isoDate = computed({
 }
 
 .field small {
-  color: #cbb89a;
-  font-size: 0.8rem;
+  color: #a8a8a8;
+  font-size: 0.85rem;
 }
 
 input,
@@ -128,13 +167,14 @@ select,
 textarea {
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid #5a4630;
-  background: #1a140f;
-  color: #f6ead6;
-  border-radius: 4px;
-  padding: 0.7rem 0.8rem;
+  border: 1px solid #4a4a4a;
+  background: #1e1e1e;
+  color: #e6e6e6;
+  border-radius: 2px;
+  padding: 0.85rem 0.9rem;
+  font-size: 1rem;
   font: inherit;
-  box-shadow: inset 0 1px 0 rgba(255, 214, 140, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 textarea {
@@ -146,9 +186,9 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  outline: 2px solid #f0b429;
+  outline: 2px solid #2d8ceb;
   outline-offset: 2px;
-  border-color: #f0b429;
+  border-color: #2d8ceb;
 }
 
 @media (max-width: 640px) {

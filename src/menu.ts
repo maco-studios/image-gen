@@ -1,7 +1,10 @@
+import type { ThemeId } from './storyDraw'
+
 export type StoryKind = 'menu' | 'photo' | 'announce'
 
 export type MenuData = {
     kind: StoryKind
+    theme: ThemeId
     weekday: string
     dateLabel: string
     items: string
@@ -51,13 +54,14 @@ export function defaultMenu(): MenuData {
     const today = new Date()
     return {
         kind: 'menu',
+        theme: 'chico',
         weekday: weekdayFromDate(today),
         dateLabel: dateLabelFromDate(today),
         items: 'ARROZ/FEIJÃO\nBIFE ACEBOLADO\nBATATA FRITA\nMACARRÃO ALHO E ÓLEO\nSALADA',
         option: 'FILÉ DE FRANGO',
         headline: 'AVISO',
         message: 'HOJE NÃO HAVERÁ ENTREGA.\nFUNCIONAMOS SOMENTE NO SALÃO.',
-        cta: 'FAÇA SEU PEDIDO',
+        cta: 'BATEU A FOME? PEÇA!',
         phone1: '(43) 3067-2443',
         phone2: '(43) 9.9197-8063',
         address: 'CARMO ANTÔNIO SALUM, 357',

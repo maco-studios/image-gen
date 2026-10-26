@@ -46,14 +46,17 @@ function onPointerLeave() {
 }
 
 onMounted(async () => {
-  await prepareStoryAssets()
+  await prepareStoryAssets(props.menu.theme)
   ready = true
   paint()
 })
 
 watch(
   () => [props.menu, props.hero],
-  () => paint(),
+  async () => {
+    if (ready) await prepareStoryAssets(props.menu.theme)
+    paint()
+  },
   { deep: true },
 )
 
@@ -62,7 +65,7 @@ onBeforeUnmount(() => {
 })
 
 async function exportPng() {
-  await prepareStoryAssets()
+  await prepareStoryAssets(props.menu.theme)
   ready = true
   const el = canvas.value
   if (!el) throw new Error('Prévia ainda não está pronta.')
@@ -99,7 +102,7 @@ defineExpose({ exportPng, canvas })
   width: 100%;
   height: 100%;
   display: block;
-  background: #090704;
+  background: #1a1a1a;
   touch-action: none;
 }
 </style>
